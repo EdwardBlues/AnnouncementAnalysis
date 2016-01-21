@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 import requests, sys
-import re    # ÕıÔò±í´ïÊ½
-from bs4 import BeautifulSoup    #½âÎöÍøÒ³HTML
+import re    # æ­£åˆ™è¡¨è¾¾å¼
+from bs4 import BeautifulSoup    #è§£æç½‘é¡µHTML
 
-# »ñÈ¡Õû¸öÒ³ÃæµÄÔ´´úÂë
+# è·å–æ•´ä¸ªé¡µé¢çš„æºä»£ç 
 def getHtml(url):
     resp = requests.get(url)
     if resp.status_code != 200:
         raise Exception('HTTP request error: %d' % resp.status_code)
     return resp.text
 
-# »ñÈ¡ÉÏ½»Ëù¹«¸æ
+# è·å–ä¸Šäº¤æ‰€å…¬å‘Š
 #sseHtml = getHtml("http://2016.sse.com.cn/disclosure/listedinfo/announcement/")
 #print(html)
 jcHtml = getHtml("http://www.cninfo.com.cn/cninfo-new/index/")
@@ -18,7 +18,7 @@ jcHtml = getHtml("http://www.cninfo.com.cn/cninfo-new/index/")
 parsedHtml = BeautifulSoup(jcHtml, 'html.parser')
 announcements = parsedHtml.find(id = 'con-a-1').find_all('li')
 for item in announcements:
-    # class=t1¶ÔÓ¦´úÂë, class=t2¶ÔÓ¦Ãû³Æ
+    # class=t1å¯¹åº”ä»£ç , class=t2å¯¹åº”åç§°
     print item.find(class_ = 't1').text, item.find(class_ = 't2').text
-    # class=t3 or t4¶ÔÓ¦¹«¸æ±êÌâ
+    # class=t3 or t4å¯¹åº”å…¬å‘Šæ ‡é¢˜
     print ','.join(map(lambda item: item['title'] if item.get('title') != None else item.text.strip(), item.find_all('a')))
