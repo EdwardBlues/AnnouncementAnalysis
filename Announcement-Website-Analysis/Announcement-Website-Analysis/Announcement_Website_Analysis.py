@@ -1,32 +1,24 @@
 # -*- coding: utf-8 -*-
-import urllib.request as ur
+import requests, sys
 import re    # 正则表达式
-
+from bs4 import BeautifulSoup    #解析网页HTML
 
 # 获取整个页面的源代码
 def getHtml(url):
-    request = ur.Request(url)
-    response = ur.urlopen(request)
-    html = response.read()
-    return html
-
-
-# 获取网页源代码中的某项资源列表
-def getTitle(html):
-    html = html.decode('utf-8')
-    # pattern = re.compile(r'title="(.*?)"')    # 非贪婪粗糙匹配title
-    #pattern = re.compile(r'target="_blank">(.+?)</a>')
-    pattern = re.compile(r'<li>(.+?)</li>')
-    titles = re.findall(pattern, html)
-    return list(set(titles))
-
+    resp = requests.get(url)
+    if resp.status_code != 200:
+        raise Exception('HTTP request error: %d' % resp.status_code)
+    return resp.text
 
 # 获取上交所公告
 #sseHtml = getHtml("http://2016.sse.com.cn/disclosure/listedinfo/announcement/")
 #print(html)
 jcHtml = getHtml("http://www.cninfo.com.cn/cninfo-new/index/")
-# 获取公告标题列表
-jcTitle = getTitle(jcHtml)
 
-
-print(jcTitle)
+parsedHtml = BeautifulSoup(jcHtml, 'html.parser')
+announcements = parsedHtml.find(id = 'con-a-1').find_all('li')
+for item in announcements:
+    # class=t1对应代码, class=t2对应名称
+    print item.find(class_ = 't1').text, item.find(class_ = 't2').text
+    # class=t3 or t4对应公告标题
+    print ','.join(map(lambda item: item['title'] if item.get('title') != None else item.text.strip(), item.find_all('a')))
