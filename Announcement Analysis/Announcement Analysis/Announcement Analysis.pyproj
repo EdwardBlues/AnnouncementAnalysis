@@ -4,8 +4,9 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>6a410291-136d-403d-9d9f-0ad0268ddf8d</ProjectGuid>
-    <ProjectHome>.</ProjectHome>
-    <StartupFile>Announcement_Analysis.py</StartupFile>
+    <ProjectHome>
+    </ProjectHome>
+    <StartupFile>Announcement Analysis.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,7 +23,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Announcement_Analysis.py" />
+    <Compile Include="Announcement Analysis.py" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
