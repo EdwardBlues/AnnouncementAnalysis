@@ -10,9 +10,6 @@ from urlparse import *    # 解析网址
 anncmt = pd.DataFrame(columns=('code', 'name', 'title', 'href'))
 
 # 获取整个页面的源代码
-=======
-# ??ȡ????ҳ????Դ????
->>>>>>> parent of bae2c89... move
 def getHtml(url, headers={}):
     print url
     print headers
