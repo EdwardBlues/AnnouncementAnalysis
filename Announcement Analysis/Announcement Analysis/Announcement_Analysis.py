@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 import requests, sys, json
-# import re    # ÕıÔò±í´ïÊ½
-from bs4 import BeautifulSoup    # ½âÎöÍøÒ³HTML
-import pandas as pd    # Ê¹ÓÃDataFrame±£´æ¡¢Êä³ö½á¹û
-from urlparse import *    # ½âÎöÍøÖ·
+# import re    # ????????Ê½
+from bs4 import BeautifulSoup    # ??????Ò³HTML
+import pandas as pd    # Ê¹??DataFrame???æ¡¢????????
+from urlparse import *    # ??????Ö·
 
 
-# ±£´æ¹«¸æÄÚÈİµÄDataFrame
+# ???æ¹«?????İµ?DataFrame
 anncmt = pd.DataFrame(columns=('code', 'name', 'title', 'href'))
 
-# »ñÈ¡Õû¸öÒ³ÃæµÄÔ´´úÂë
+# ??È¡????Ò³????Ô´????
 def getHtml(url, headers={}):
     print url
     print headers
@@ -19,16 +19,16 @@ def getHtml(url, headers={}):
     return resp.text
 
 
-# 0. js»ñÈ¡Êı¾İµÄÉÏ½»Ëù¡¢Éî½»Ëù¹«¸æ£¨ÓĞ´ı´¦Àíjs£©
-#    Ë¢ĞÂ¿ÉÄÜ±È¾Ş³±¼°Ê±
-#    ÉÏ½»ËùÅÌÖĞÎŞ¹«¸æ£¬µ«Éî½»ËùÈ«ÌìËæÊ±³ö¹«¸æ£¬ÅÌÖĞ¶Ô¹ÉÆ±ÓĞÓ°Ïì
-#sseHtml = getHtml("http://2016.sse.com.cn/disclosure/listedinfo/announcement/")    # ÉÏ½»Ëù
-#szseHtml = getHtml("http://disclosure.szse.cn/m/drgg.htm")    # Éî½»Ëù
+# 0. js??È¡???İµ??Ï½??????î½»?????æ£¨?Ğ´?????js??
+#    Ë¢?Â¿??Ü±È¾Ş³???Ê±
+#    ?Ï½????????Ş¹??æ£¬???î½»??È«????Ê±?????æ£¬???Ğ¶Ô¹?Æ±??Ó°??
+#sseHtml = getHtml("http://2016.sse.com.cn/disclosure/listedinfo/announcement/")    # ?Ï½???
+#szseHtml = getHtml("http://disclosure.szse.cn/m/drgg.htm")    # ?î½»??
 """
-ÎŞĞè´¦ÀíJS£¬Ö±½Ó¿´·¢µÄhttpÇëÇó£¬±ÈÈçÉÏ½»Ëù
+???è´¦??JS??Ö±?Ó¿?????http???ó£¬±????Ï½???
 query.sse.com.cn/infodisplay/queryLatestBulletinNew.do?
 isPagination=true&productId&keyWord&reportType2&reportType=ALL&beginDate=2016-01-22&endDate=2016-01-22
-ÆäÖĞproductId,keyWord,reportType,reportType2,beginDate,endDate¶ÔÓ¦ÉÏ½»ËùÒ³ÃæÉÏµÄ²éÑ¯Ìõ¼ş
+????productId,keyWord,reportType,reportType2,beginDate,endDate??Ó¦?Ï½???Ò³???ÏµÄ²?Ñ¯????
 """
 def getSSEAnnouncement(productId='', keyWord='', reportType='ALL', reportType2='', beginDate='', endDate=''):
     rowData = []
@@ -55,24 +55,24 @@ def getSSEAnnouncement(productId='', keyWord='', reportType='ALL', reportType2='
 
 getSSEAnnouncement(beginDate='2016-01-01', endDate='2016-01-01')
 
-# 1. ¾Ş³±×ÊÑ¶×îĞÂ¹«¸æ£¬¿ÉÄÜ±È½Ï¼°Ê±£¬µ«²»È«
+# 1. ?Ş³???Ñ¶???Â¹??æ£¬???Ü±È½Ï¼?Ê±??????È«
 #def getCnInfoNews():
 #    jcHttp = "http://www.cninfo.com.cn/cninfo-new/index/"
-#    jcRoot = urlparse(jcHttp).netloc    # ×Ô¶¯»ñÈ¡¸ùÓòÃû
+#    jcRoot = urlparse(jcHttp).netloc    # ?Ô¶???È¡??????
 #    jcHtml = getHtml(jcHttp)
 
 #    parsedHtml = BeautifulSoup(jcHtml, 'html.parser')
 #    announcements = parsedHtml.find(id = 'con-a-1').find_all('li')
 #    for item in announcements:
-#        # class=t1¶ÔÓ¦´úÂë, class=t2¶ÔÓ¦Ãû³Æ
+#        # class=t1??Ó¦????, class=t2??Ó¦????
 #        code = item.find(class_ = 't1').text
 #        name = item.find(class_ = 't2').text
 #        print code, name
-#        # classÊÇpythonµÄ¹Ø¼ü×Ö£¬ËùÒÔºóÃæÒª¼Ó¸ö_
+#        # class??python?Ä¹Ø¼??Ö£????Ôº???Òª?Ó¸?_
 
-#        ## class=t3 or t4¶ÔÓ¦¹«¸æ±êÌâ
+#        ## class=t3 or t4??Ó¦????????
 #        #print ', '.join(map(lambda item: item['title'] if item.get('title') != None else item.text.strip(), item.find_all('a')))
-#        ## item.get('title') ÊÇ²»ÊÇµÈ¼ÛÓÚ item.title £¿ item.find_all('a') ÊÇ²»ÊÇµÈ¼ÛÓÚ item.select('a') £¿
+#        ## item.get('title') ?Ç²??ÇµÈ¼??? item.title ?? item.find_all('a') ?Ç²??ÇµÈ¼??? item.select('a') ??
 
 #        for cont in item.find_all('a'):
 #            title = cont['title'] if cont.get('title') != None else cont.text.strip()
@@ -84,11 +84,11 @@ getSSEAnnouncement(beginDate='2016-01-01', endDate='2016-01-01')
 
 #        print ''
 
-    # ½«½á¹û±£´æµ½excel
+    # ?????????æµ½excel
     #anncmt.to_excel('anncmt.xlsx')
 
-# 2. ¾Ş³±×ÊÑ¶sse»¦ÊĞ¹«¸æ¡£¡£ËÆºõÍ¬ÑùÊÇjsÈ¡µÃµÄÊı¾İ
+# 2. ?Ş³???Ñ¶sse???Ğ¹??æ¡£???Æº?Í¬????jsÈ¡?Ãµ?????
 #    http://www.cninfo.com.cn/cninfo-new/disclosure/sse
 
-# 3. ¾Ş³±×ÊÑ¶szseÉîÊĞ¹«¸æ
+# 3. ?Ş³???Ñ¶szse???Ğ¹???
 #    http://www.cninfo.com.cn/cninfo-new/disclosure/szse
