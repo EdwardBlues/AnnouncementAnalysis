@@ -53,7 +53,7 @@ def getSSEAnnouncement(productId='', keyWord='', reportType='ALL', reportType2='
         print ''
     return data
 
-getSSEAnnouncement(beginDate='2016-01-01', endDate='2016-01-01')
+getSSEAnnouncement(beginDate='2016-01-22', endDate='2016-01-22')
 
 # 1. 巨潮资讯最新公告，可能比较及时，但不全
 #def getCnInfoNews():
