@@ -7,6 +7,7 @@ import datetime
 import urllib2
 import csv
 
+
 YAHOO = "http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=sd1ohgl1vl1"
 
 def get_quote_today(symbol):
