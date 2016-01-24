@@ -1,12 +1,30 @@
 # -*- coding: utf-8 -*-
 import requests, sys, json
-# import re    # 正则表达式
+import re    # 正则表达式
 from bs4 import BeautifulSoup    # 解析网页HTML
-import pandas as pd    # 使用DataFrame保存、输出结果
+#import pandas as pd    # 使用DataFrame保存、输出结果
 from urlparse import *    # 解析网址
+import pyspider
+from selenium import webdriver
+#import time
+
+# 深交所js结果
+driver = webdriver.PhantomJS()
+driver.get('http://disclosure.szse.cn//disclosure/fulltext/plate/szlatest_24h.js')
+#data = driver.find_element_by_tag_name('td').text
+#print data.encode('utf-8')
+#time.sleep(10)#等待页面加载
+page = driver.page_source
+#print page.encode('gbk', 'ignore');
+
+# ??? 正则表达式还需要改进
+pattern = re.compile(r'[".+"]')
+titles = re.findall(pattern, page)
 
 
-# 保存公告内容的DataFrame
+print page
+
+'''# 保存公告内容的DataFrame
 anncmt = pd.DataFrame(columns=('code', 'name', 'title', 'href'))
 
 # 获取整个页面的源代码
@@ -53,7 +71,24 @@ def getSSEAnnouncement(productId='', keyWord='', reportType='ALL', reportType2='
         print ''
     return data
 
-getSSEAnnouncement(beginDate='2016-01-22', endDate='2016-01-22')
+getSSEAnnouncement(beginDate='2016-01-22', endDate='2016-01-22')'''
+
+
+
+
+
+'''
+# 获取网页源代码中的某项资源列表
+def getTitle(html):
+    html = html.decode('utf-8')
+    # pattern = re.compile(r'title="(.*?)"')    # 非贪婪粗糙匹配title
+    #pattern = re.compile(r'target="_blank">(.+?)</a>')
+    pattern = re.compile(r'szzbAffiches=[(.+?)]')
+    titles = re.findall(pattern, html)
+    return list(set(titles))
+'''
+
+
 
 # 1. 巨潮资讯最新公告，可能比较及时，但不全
 #def getCnInfoNews():
