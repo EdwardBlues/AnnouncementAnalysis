@@ -4,38 +4,51 @@ import re    # 正则表达式
 from bs4 import BeautifulSoup    # 解析网页HTML
 #import pandas as pd    # 使用DataFrame保存、输出结果
 from urlparse import *    # 解析网址
-import pyspider
-from selenium import webdriver
-#import time
-
-# 深交所js结果
-driver = webdriver.PhantomJS()
-driver.get('http://disclosure.szse.cn//disclosure/fulltext/plate/szlatest_24h.js')
-#data = driver.find_element_by_tag_name('td').text
-#print data.encode('utf-8')
-#time.sleep(10)#等待页面加载
-page = driver.page_source
-#print page.encode('gbk', 'ignore');
-
-# ??? 正则表达式还需要改进
-pattern = re.compile(r'[".+"]')
-titles = re.findall(pattern, page)
-
-
-print page
-
-'''# 保存公告内容的DataFrame
-anncmt = pd.DataFrame(columns=('code', 'name', 'title', 'href'))
+import ast
 
 # 获取整个页面的源代码
-def getHtml(url, headers={}):
+def getHtml(url, headers={}, encoding=''):
     print url
     print headers
     resp = requests.get(url, headers=headers)
     if resp.status_code != 200:
         raise Exception('HTTP request error: %d' % resp.status_code)
+    if encoding != '':
+        resp.encoding = encoding
     return resp.text
 
+# 深交所js结果
+# 我认为不需要加载JS这么复杂，这个获取最近24h公告的
+def getSZSELast24h():
+    respText = getHtml(url='http://disclosure.szse.cn//disclosure/fulltext/plate/szlatest_24h.js', encoding='gbk')
+    literalList = respText[17:-2]
+    last24 = ast.literal_eval(literalList)
+    for item in last24:
+        # example for item: ["300501","finalpage/2016-01-25/1201936491.PDF","海顺新材：首次公开发行股票并在创业板上市投资风险特别公告","PDF","353","2016-01-25","2016-01-25 00:00"]
+        code, url = item[0], item[1]
+        title = item[2]
+        print code, title, url
+getSZSELast24h()
+
+#另外http://disclosure.szse.cn/m/search0425.jsp
+#这是一个post的url地址，post的内容如这样: leftid=1&lmid=drgg&pageNo=2&stockCode=&keyword=&noticeType=&startTime=2016-01-25&endTime=2016-01-25&tzy=
+#TODO: 写一个类似上海证券交易所的传各种参数的函数
+
+#driver = webdriver.PhantomJS()
+#driver.get('http://disclosure.szse.cn//disclosure/fulltext/plate/szlatest_24h.js')
+#data = driver.find_element_by_tag_name('td').text
+#print data.encode('utf-8')
+#time.sleep(10)#等待页面加载
+#page = driver.page_source
+#print page.encode('gbk', 'ignore');
+
+# ??? 正则表达式还需要改进
+#pattern = re.compile(r'[".+"]')
+#titles = re.findall(pattern, page)
+#print page
+
+'''# 保存公告内容的DataFrame
+anncmt = pd.DataFrame(columns=('code', 'name', 'title', 'href'))
 
 # 0. js获取数据的上交所、深交所公告（有待处理js）
 #    刷新可能比巨潮及时
