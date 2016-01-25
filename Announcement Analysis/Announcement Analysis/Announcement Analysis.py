@@ -1,15 +1,23 @@
 # -*- coding: utf-8 -*-
+#------------------------------------------------------
 import requests, sys, json
 import re    # 正则表达式
 from bs4 import BeautifulSoup    # 解析网页HTML
-#import pandas as pd    # 使用DataFrame保存、输出结果
+import pandas as pd    # 使用DataFrame保存、输出结果
 from urlparse import *    # 解析网址
 import ast
+from datetime import date,datetime,time
+#------------------------------------------------------
+
+
+# 过程中以dictionary保存code、title、url
+results = {'code':[], 'title':[], 'url':[]}
+
 
 # 获取整个页面的源代码
 def getHtml(url, headers={}, encoding=''):
-    print url
-    print headers
+    #print url
+    #print headers
     resp = requests.get(url, headers=headers)
     if resp.status_code != 200:
         raise Exception('HTTP request error: %d' % resp.status_code)
@@ -17,51 +25,11 @@ def getHtml(url, headers={}, encoding=''):
         resp.encoding = encoding
     return resp.text
 
-# 深交所js结果
-# 我认为不需要加载JS这么复杂，这个获取最近24h公告的
-def getSZSELast24h():
-    respText = getHtml(url='http://disclosure.szse.cn//disclosure/fulltext/plate/szlatest_24h.js', encoding='gbk')
-    literalList = respText[17:-2]
-    last24 = ast.literal_eval(literalList)
-    for item in last24:
-        # example for item: ["300501","finalpage/2016-01-25/1201936491.PDF","海顺新材：首次公开发行股票并在创业板上市投资风险特别公告","PDF","353","2016-01-25","2016-01-25 00:00"]
-        code, url = item[0], item[1]
-        title = item[2]
-        print code, title, url
-getSZSELast24h()
 
-#另外http://disclosure.szse.cn/m/search0425.jsp
-#这是一个post的url地址，post的内容如这样: leftid=1&lmid=drgg&pageNo=2&stockCode=&keyword=&noticeType=&startTime=2016-01-25&endTime=2016-01-25&tzy=
-#TODO: 写一个类似上海证券交易所的传各种参数的函数
-
-#driver = webdriver.PhantomJS()
-#driver.get('http://disclosure.szse.cn//disclosure/fulltext/plate/szlatest_24h.js')
-#data = driver.find_element_by_tag_name('td').text
-#print data.encode('utf-8')
-#time.sleep(10)#等待页面加载
-#page = driver.page_source
-#print page.encode('gbk', 'ignore');
-
-# ??? 正则表达式还需要改进
-#pattern = re.compile(r'[".+"]')
-#titles = re.findall(pattern, page)
-#print page
-
-'''# 保存公告内容的DataFrame
-anncmt = pd.DataFrame(columns=('code', 'name', 'title', 'href'))
-
-# 0. js获取数据的上交所、深交所公告（有待处理js）
-#    刷新可能比巨潮及时
-#    上交所盘中无公告，但深交所全天随时出公告，盘中对股票有影响
-#sseHtml = getHtml("http://2016.sse.com.cn/disclosure/listedinfo/announcement/")    # 上交所
-#szseHtml = getHtml("http://disclosure.szse.cn/m/drgg.htm")    # 深交所
-"""
-无需处理JS，直接看发的http请求，比如上交所
-query.sse.com.cn/infodisplay/queryLatestBulletinNew.do?
-isPagination=true&productId&keyWord&reportType2&reportType=ALL&beginDate=2016-01-22&endDate=2016-01-22
-其中productId,keyWord,reportType,reportType2,beginDate,endDate对应上交所页面上的查询条件
-"""
+# 获取上交所公告
 def getSSEAnnouncement(productId='', keyWord='', reportType='ALL', reportType2='', beginDate='', endDate=''):
+    global results
+
     rowData = []
     headers = {'Referer':'http://2016.sse.com.cn/disclosure/listedinfo/announcement/'}
     reqURL = 'http://query.sse.com.cn/infodisplay/queryLatestBulletinNew.do?isPagination=false&productId={0}&keyWord={1}&reportType={2}&reportType2={3}&beginDate={4}&endDate={5}'.format(productId,keyWord,reportType,reportType2,beginDate,endDate)
@@ -79,64 +47,39 @@ def getSSEAnnouncement(productId='', keyWord='', reportType='ALL', reportType2='
     data = map(lambda item: [item['security_Code'], item['title'], item['SSEDate'],item['URL']], rowData)
     for item in data:
         # print item[0], item[1], item[2], item[3]
-        print item[2], item[0], item[1]
-        print item[3]
-        print ''
-    return data
+        print item[0], item[1], item[3]
+        results['code'].append(item[0])
+        results['title'].append(item[1])
+        results['url'].append('http://2016.sse.com.cn'+item[3])
 
-getSSEAnnouncement(beginDate='2016-01-22', endDate='2016-01-22')'''
-
-
-
-
-
-'''
-# 获取网页源代码中的某项资源列表
-def getTitle(html):
-    html = html.decode('utf-8')
-    # pattern = re.compile(r'title="(.*?)"')    # 非贪婪粗糙匹配title
-    #pattern = re.compile(r'target="_blank">(.+?)</a>')
-    pattern = re.compile(r'szzbAffiches=[(.+?)]')
-    titles = re.findall(pattern, html)
-    return list(set(titles))
-'''
+date_of_today = datetime.today()
+date_of_today = datetime.strftime(date_of_today, '%Y-%m-%d')
+getSSEAnnouncement(beginDate=date_of_today, endDate=date_of_today)
 
 
+# 获取深交所公告
+#另外http://disclosure.szse.cn/m/search0425.jsp
+#这是一个post的url地址，post的内容如这样: leftid=1&lmid=drgg&pageNo=2&stockCode=&keyword=&noticeType=&startTime=2016-01-25&endTime=2016-01-25&tzy=
+#TODO: 写一个类似上海证券交易所的传各种参数的函数
+def getSZSELast24h():
+    global results
 
-# 1. 巨潮资讯最新公告，可能比较及时，但不全
-#def getCnInfoNews():
-#    jcHttp = "http://www.cninfo.com.cn/cninfo-new/index/"
-#    jcRoot = urlparse(jcHttp).netloc    # 自动获取根域名
-#    jcHtml = getHtml(jcHttp)
+    respText = getHtml(url='http://disclosure.szse.cn//disclosure/fulltext/plate/szlatest_24h.js', encoding='gbk')
+    literalList = respText[17:-2]
+    last24 = ast.literal_eval(literalList)
+    for item in last24:
+        # example for item: ["300501","finalpage/2016-01-25/1201936491.PDF","海顺新材：首次公开发行股票并在创业板上市投资风险特别公告","PDF","353","2016-01-25","2016-01-25 00:00"]
+        code, url = item[0], item[1]
+        title = item[2]
+        print code, title.decode('utf-8'), url
+        results['code'].append(item[0])
+        results['title'].append(item[2].decode('utf-8'))
+        results['url'].append('http://disclosure.szse.cn/'+item[1])
 
-#    parsedHtml = BeautifulSoup(jcHtml, 'html.parser')
-#    announcements = parsedHtml.find(id = 'con-a-1').find_all('li')
-#    for item in announcements:
-#        # class=t1对应代码, class=t2对应名称
-#        code = item.find(class_ = 't1').text
-#        name = item.find(class_ = 't2').text
-#        print code, name
-#        # class是python的关键字，所以后面要加个_
+getSZSELast24h()
 
-#        ## class=t3 or t4对应公告标题
-#        #print ', '.join(map(lambda item: item['title'] if item.get('title') != None else item.text.strip(), item.find_all('a')))
-#        ## item.get('title') 是不是等价于 item.title ？ item.find_all('a') 是不是等价于 item.select('a') ？
 
-#        for cont in item.find_all('a'):
-#            title = cont['title'] if cont.get('title') != None else cont.text.strip()
-#            print title
-#            href = jcRoot + cont.get('href')
-#            print href
-#            row = pd.DataFrame([dict(code = code, name = name, title = title, href = href)])
-#            anncmt = anncmt.append(row, ignore_index=True)
-
-#        print ''
-
-    # 将结果保存到excel
-    #anncmt.to_excel('anncmt.xlsx')
-
-# 2. 巨潮资讯sse沪市公告。。似乎同样是js取得的数据
-#    http://www.cninfo.com.cn/cninfo-new/disclosure/sse
-
-# 3. 巨潮资讯szse深市公告
-#    http://www.cninfo.com.cn/cninfo-new/disclosure/szse
+# 保存到 results.xlsx
+# sheet1是没处理过的原始记录，考虑对results DataFrame分类之后放到sheet2去
+results = pd.DataFrame(results)
+results.to_excel('results.xlsx', 'sheet1')
