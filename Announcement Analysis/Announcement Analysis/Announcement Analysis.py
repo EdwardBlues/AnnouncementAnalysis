@@ -7,6 +7,12 @@ import pandas as pd    # 使用DataFrame保存、输出结果
 from urlparse import *    # 解析网址
 import ast
 from datetime import date,datetime,time
+import xlrd, xlwt    # version1 将分类结果保存到excel中再人为决策
+# version2 将分类结果保存到sql中，盘中实时更新、提醒（if any）
+#from sqlalchemy import create_engine    # pandas连接数据库的engine
+#weight_engine = create_engine("mssql+pymssql://sa:666666@192.168.38.216/CSI_IndexWeight", encoding = 'UTF-8', echo = False)
+#sql = "select EFFDATE,SECCODE,ISHARE from CSI_WEIGHT_HS300 where EFFDATE >= " + startdate + " and EFFDATE <= " + enddate + " order by EFFDATE,SECCODE"
+#%time index_weight = pd.read_sql_query(sql, weight_engine)
 #------------------------------------------------------
 
 
@@ -79,7 +85,46 @@ def getSZSELast24h():
 getSZSELast24h()
 
 
-# 保存到 results.xlsx
-# sheet1是没处理过的原始记录，考虑对results DataFrame分类之后放到sheet2去
+
+# 为每一类公告在excel中增加一个sheet页
+def addSheet2Excel(workbook, sheetname, data):
+    sheet = workbook.add_sheet(sheetname, cell_overwrite_ok = True)
+    for j in range(len(data.columns)):
+        sheet.write(0, j, data.columns[j])
+    for i in range(len(data.values)):
+        for j in range(len(data.values[i])):
+            sheet.write(i+1, j, data.values[i][j])
+    return workbook
+
+# 将公告分类保存到excel中
 results = pd.DataFrame(results)
-results.to_excel('results.xlsx', 'sheet1')
+#results.to_excel('results.xlsx', '全部公告'.decode('utf-8'))
+excel = xlwt.Workbook()
+excel = addSheet2Excel(excel, u'全部公告', results)
+
+# 信息披露类别：
+# 8业绩预告、业绩快报和盈利预测
+yjyg = results[results.title.apply(lambda x:u'业绩预' in x or u'业绩快报' in x or u'盈利预测' in x)]
+excel = addSheet2Excel(excel, u'业绩预告', yjyg)
+
+# 12股东增持或减持股份
+gdzc = results[results.title.apply(lambda x:u'股东增持' in x)]
+excel = addSheet2Excel(excel, u'股东增持', gdzc)
+
+# 16重大资产重组
+zccz = results[results.title.apply(lambda x:u'重大资产重组' in x)]
+excel = addSheet2Excel(excel, u'重大资产重组', zccz)
+
+# 17吸收合并
+xshb = results[results.title.apply(lambda x:u'吸收合并' in x)]
+excel = addSheet2Excel(excel, u'吸收合并', xshb)
+
+# 18回购股份
+hggf = results[results.title.apply(lambda x:u'回购股份' in x)]
+excel = addSheet2Excel(excel, u'回购股份', hggf)
+
+# 21股权激励及员工持股计划
+cgjh = results[results.title.apply(lambda x:u'股权激励' in x or u'员工持股计划' in x)]
+excel = addSheet2Excel(excel, u'员工持股计划', cgjh)
+
+excel.save(date_of_today+'.xls')
