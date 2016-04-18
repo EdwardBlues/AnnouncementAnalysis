@@ -1,0 +1,321 @@
++ curl -XPUT 'localhost:9200/stock?pretty' -d '{
+	"mappings": {
+		"announcements": {
+			"properties": {
+				"time": {
+					"type": "date"
+				},
+				"code": {
+					"type": "string",
+					"index": "not_analyzed"
+				},
+				"title": {
+					"type": "string",
+					"analyzer": "ik_max_word"
+				},
+				"url": {
+					"type": "string",
+					"index": "not_analyzed"
+				}
+			}
+		}
+	},
+	"settings": {
+	}
+}'
+{
+  "acknowledged" : true
+}
++ echo
+
++ curl -XPOST 'localhost:9200/stock/announcements/1?pretty' -d '{
+	"time": "2016-01-22",
+	"code": "002240",
+	"title": "关于召开2016年第二次（临时）股东大会的通知",
+	"url": "www.cninfo.com.cn/cninfo-new/disclosure/szse/bulletin_detail/true/1201932814?announceTime=2016-01-22"
+}'
+{
+  "_index" : "stock",
+  "_type" : "announcements",
+  "_id" : "1",
+  "_version" : 1,
+  "_shards" : {
+    "total" : 2,
+    "successful" : 1,
+    "failed" : 0
+  },
+  "created" : true
+}
++ echo
+
++ curl -XGET 'localhost:9200/stock/announcements/1/_termvectors?pretty' -d '{
+  "fields" : ["title"],
+  "offsets" : true,
+  "payloads" : true,
+  "positions" : true,
+  "term_statistics" : true,
+  "field_statistics" : true
+}'
+{
+  "_index" : "stock",
+  "_type" : "announcements",
+  "_id" : "1",
+  "_version" : 1,
+  "found" : true,
+  "took" : 5,
+  "term_vectors" : {
+    "title" : {
+      "field_statistics" : {
+        "sum_doc_freq" : 20,
+        "doc_count" : 1,
+        "sum_ttf" : 20
+      },
+      "terms" : {
+        "2016" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 4,
+            "start_offset" : 4,
+            "end_offset" : 8
+          } ]
+        },
+        "东大" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 17,
+            "start_offset" : 17,
+            "end_offset" : 19
+          } ]
+        },
+        "临" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 12,
+            "start_offset" : 13,
+            "end_offset" : 14
+          } ]
+        },
+        "临时" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 11,
+            "start_offset" : 13,
+            "end_offset" : 15
+          } ]
+        },
+        "二" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 9,
+            "start_offset" : 10,
+            "end_offset" : 11
+          } ]
+        },
+        "二次" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 8,
+            "start_offset" : 10,
+            "end_offset" : 12
+          } ]
+        },
+        "关于" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 0,
+            "start_offset" : 0,
+            "end_offset" : 2
+          } ]
+        },
+        "召" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 2,
+            "start_offset" : 2,
+            "end_offset" : 3
+          } ]
+        },
+        "召开" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 1,
+            "start_offset" : 2,
+            "end_offset" : 4
+          } ]
+        },
+        "大会" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 18,
+            "start_offset" : 18,
+            "end_offset" : 20
+          } ]
+        },
+        "年" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 5,
+            "start_offset" : 8,
+            "end_offset" : 9
+          } ]
+        },
+        "开" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 3,
+            "start_offset" : 3,
+            "end_offset" : 4
+          } ]
+        },
+        "时" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 13,
+            "start_offset" : 14,
+            "end_offset" : 15
+          } ]
+        },
+        "次" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 10,
+            "start_offset" : 11,
+            "end_offset" : 12
+          } ]
+        },
+        "第二" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 7,
+            "start_offset" : 9,
+            "end_offset" : 11
+          } ]
+        },
+        "第二次" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 6,
+            "start_offset" : 9,
+            "end_offset" : 12
+          } ]
+        },
+        "股" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 16,
+            "start_offset" : 16,
+            "end_offset" : 17
+          } ]
+        },
+        "股东" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 15,
+            "start_offset" : 16,
+            "end_offset" : 18
+          } ]
+        },
+        "股东大会" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 14,
+            "start_offset" : 16,
+            "end_offset" : 20
+          } ]
+        },
+        "通知" : {
+          "doc_freq" : 1,
+          "ttf" : 1,
+          "term_freq" : 1,
+          "tokens" : [ {
+            "position" : 19,
+            "start_offset" : 21,
+            "end_offset" : 23
+          } ]
+        }
+      }
+    }
+  }
+}
++ echo
+
++ sleep 1.5
++ curl -XPOST 'localhost:9200/stock/_search?pretty' -d '{
+	"query" : {
+		"match": {
+			"title": "股东大会"
+		}
+	},
+	"highlight": {
+		"fields": {
+			"title": {}
+		}
+	}
+}'
+{
+  "took" : 10,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 5,
+    "successful" : 5,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : 1,
+    "max_score" : 0.15009396,
+    "hits" : [ {
+      "_index" : "stock",
+      "_type" : "announcements",
+      "_id" : "1",
+      "_score" : 0.15009396,
+      "_source" : {
+        "time" : "2016-01-22",
+        "code" : "002240",
+        "title" : "关于召开2016年第二次（临时）股东大会的通知",
+        "url" : "www.cninfo.com.cn/cninfo-new/disclosure/szse/bulletin_detail/true/1201932814?announceTime=2016-01-22"
+      },
+      "highlight" : {
+        "title" : [ "关于召开2016年第二次（临时）<em>股东大会</em>的通知" ]
+      }
+    } ]
+  }
+}
++ echo
