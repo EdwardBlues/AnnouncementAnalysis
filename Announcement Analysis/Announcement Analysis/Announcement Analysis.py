@@ -1,3 +1,4 @@
+#new branch
 # -*- coding: utf-8 -*-
 #------------------------------------------------------
 import requests, sys, json
@@ -6,7 +7,7 @@ from bs4 import BeautifulSoup    # 解析网页HTML
 import pandas as pd    # 使用DataFrame保存、输出结果
 from urlparse import *    # 解析网址
 import ast
-from datetime import date,datetime,time
+from datetime import date,datetime,time,timedelta
 import xlrd, xlwt    # version1 将分类结果保存到excel中再人为决策
 # version2 将分类结果保存到sql中，盘中实时更新、提醒（if any）
 #from sqlalchemy import create_engine    # pandas连接数据库的engine
@@ -59,8 +60,12 @@ def getSSEAnnouncement(productId='', keyWord='', reportType='ALL', reportType2='
         results['url'].append('http://2016.sse.com.cn'+item[3])
 
 date_of_today = datetime.today()
+sse_date = date_of_today + timedelta(days = 1)
 date_of_today = datetime.strftime(date_of_today, '%Y-%m-%d')
-getSSEAnnouncement(beginDate=date_of_today, endDate=date_of_today)
+sse_date = datetime.strftime(sse_date, '%Y-%m-%d')
+#date_of_today = '2016-02-23'
+#sse_date = '2016-02-23'
+getSSEAnnouncement(beginDate=sse_date, endDate=sse_date)
 
 
 # 获取深交所公告
@@ -108,7 +113,7 @@ yjyg = results[results.title.apply(lambda x:u'业绩预' in x or u'业绩快报'
 excel = addSheet2Excel(excel, u'业绩预告', yjyg)
 
 # 12股东增持或减持股份
-gdzc = results[results.title.apply(lambda x:u'股东增持' in x)]
+gdzc = results[results.title.apply(lambda x:u'股东增持' in x or u'权益' in x)]
 excel = addSheet2Excel(excel, u'股东增持', gdzc)
 
 # 16重大资产重组
@@ -122,6 +127,10 @@ excel = addSheet2Excel(excel, u'吸收合并', xshb)
 # 18回购股份
 hggf = results[results.title.apply(lambda x:u'回购股份' in x)]
 excel = addSheet2Excel(excel, u'回购股份', hggf)
+
+# 可转换公司债
+kzhz = results[results.title.apply(lambda x:u'可转换' in x)]
+excel = addSheet2Excel(excel, u'可转换', kzhz)
 
 # 21股权激励及员工持股计划
 cgjh = results[results.title.apply(lambda x:u'股权激励' in x or u'员工持股计划' in x)]
